@@ -69,7 +69,7 @@ local function api_handler(request)
      
      print("recived entries",json.dumps_to_string(entries))
 
-     local absolute_time = dtw.get_absolute_time()
+     local absolute_time = dtw.get_absolute_time() + (60 * 60 *3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
 
 
@@ -113,7 +113,7 @@ local function api_handler(request)
          from = from_str,
          to = to_str,
       }
-      dtw.write_file("debug/"..data..".json", json.dumps_to_string(debug))
+      dtw.write_file("debug/"..data..".json", json.dumps_to_string(debug_data))
       return result
 
    end
