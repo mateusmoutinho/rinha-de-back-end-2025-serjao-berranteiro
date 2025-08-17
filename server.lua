@@ -78,7 +78,7 @@ function api_handler(request)
      })    
      if requisition.status_code == 200 then
 
-      local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
+      local path = decided_path.."/"..dtw.get_pid().."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
          return "",200
       end
