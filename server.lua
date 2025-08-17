@@ -3,7 +3,7 @@ FALLBACK_URL ="http://localhost:8002"
 
 
 set_server.max_queue = 1
-set_server.max_request = 1000
+set_server.max_request = 50
 set_server.function_timeout = 100
 set_server.client_timeout = 100
 
