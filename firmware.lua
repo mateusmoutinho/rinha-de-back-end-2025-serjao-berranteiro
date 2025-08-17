@@ -2,7 +2,7 @@
 set_server.max_queue = 10000 
 set_server.max_request = 10000
 set_server.function_timeout = 100
-set_server.single_process = true
+--set_server.single_process = true
 
 
 -- Define your request handler
