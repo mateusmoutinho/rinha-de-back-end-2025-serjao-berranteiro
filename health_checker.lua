@@ -6,7 +6,6 @@ local get_status = clpr.add_action({
     name = "get_status",
 
     callback = function(args)
-    error("aaa")
 
         local result = luabear.fetch({
             url=args.url.."/payments/service-health"
