@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile.server1
     container_name: api1
     volumes:
-      - .:/app
+      - .:/app:rw
     working_dir: /app
     command: ./vibescript.out server.lua --start 3000 --end 3100
     ports:
@@ -44,7 +44,7 @@ services:
       dockerfile: Dockerfile.server2
     container_name: api2
     volumes:
-      - .:/app
+      - .:/app:rw
     working_dir: /app
     command: ./vibescript.out server.lua --start 3101 --end 3200
     ports:
@@ -64,7 +64,7 @@ services:
       dockerfile: Dockerfile.health_checker
     container_name: health_checker
     volumes:
-      - .:/app
+      - .:/app:rw
     working_dir: /app
     command: ./vibescript.out health_checker.lua
 
