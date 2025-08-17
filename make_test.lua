@@ -1,7 +1,7 @@
 local server = clpr.add_action({
     name="server",
     callback=function ()
-        relative_load("server.lua")
+        relative_load("firmware.lua")
     end
 })
 clpr.add_main(function ()
