@@ -71,8 +71,9 @@ local function api_handler(request)
         body = entries
      })    
      if requisition.status_code == 200 then
-        local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
-        dtw.write_file(path,tostring(entries.amount))
+         local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
+         dtw.write_file(path,tostring(entries.amount))
+         print("Payment recorded with value: "..entries.amount)
          return "",200
       end
       return "",requisition.status_code
