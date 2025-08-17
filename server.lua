@@ -13,11 +13,11 @@ local function get_summary(database_path,from,to)
    local to_seconds = to.seconds
    local to_nanoseconds = to.nanoseconds
    for i=1,#files do
-      local file = files[i]
-      local file_start = string.sub(file,1,10)
-      local files_start_number = tonumber(file_start)
-      local file_end = string.sub(file,12,21)
-      local file_end_number = tonumber(file_end)
+      local element = files[i]
+      local element_seconds_str = string.sub(element,1,10)
+      local element_seconds = tonumber(element_seconds_str)
+      local element_nano_seconds_str = string.sub(element,12,21)
+      local element_nano_seconds = tonumber(element_nano_seconds_str)
    end 
    return result
 end
