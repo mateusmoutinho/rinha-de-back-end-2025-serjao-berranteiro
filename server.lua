@@ -31,7 +31,7 @@ local function get_summary(database_path,from,to)
    
    for i=1,#files do
       local file = files[i]
-      local element = dtw.newPlath(file).get_name()
+      local element = dtw.newPath(file).get_name()
       local element_seconds_str = string.sub(element,1,10)
       local element_seconds = tonumber(element_seconds_str)
       local element_nano_seconds_str = string.sub(element,12,21)
