@@ -7,5 +7,6 @@ url.txt
 .clpr
 data
 partial-results.json
+debug
 rinha.js
 requests.js

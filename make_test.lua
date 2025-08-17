@@ -8,6 +8,7 @@ clpr.add_main(function ()
 
 
     dtw.remove_any("data")
+    dtw.remove_any("debug")
     clpr.start_action(server)
     local required_files = {
         {
