@@ -9,7 +9,7 @@ set_server.client_timeout = 100
 
 
 local function get_summary(database_path,from,to)
-   local files = dtw.list_files(database_path)
+   local correlations = dtw.list_files(database_path)
    local result ={
       totalRequests=0,
       totalAmount=0,
@@ -32,25 +32,35 @@ local function get_summary(database_path,from,to)
       to_seconds = to.seconds
       to_milliseconds = to.milliseconds
    end
-   for i=1,#files do
-      local element = files[i]
-      local element_seconds_str = string.sub(element,1,10)
-      local element_seconds = tonumber(element_seconds_str)
-      local element_milliseconds_str = string.sub(element,12,14)
-      local element_milliseconds = tonumber(element_milliseconds_str)
+   
+   for i=1,#correlations do
+      local correlation_id = correlations[i]
+      local correlation_path = database_path .. "/" .. correlation_id
       
-      -- Check if the file timestamp is within the range
-      local is_after_from = (element_seconds > from_seconds) or 
-                           (element_seconds == from_seconds and element_milliseconds >= from_milliseconds)
-      local is_before_to = (element_seconds < to_seconds) or 
-                          (element_seconds == to_seconds and element_milliseconds <= to_milliseconds)
+      -- Read the timestamp files
+      local seconds_file = correlation_path .. "/seconds"
+      local milliseconds_file = correlation_path .. "/milliseconds"
+      local amount_file = correlation_path .. "/amount"
       
-      if is_after_from and is_before_to then
-         result.totalRequests = result.totalRequests + 1
-         -- Read the amount from the file and add to total
-         local amount_str = dtw.load_file(database_path .. "/" .. element)
-         local amount = tonumber(amount_str) or 0
-         result.totalAmount = result.totalAmount + amount
+      if dtw.isfile(seconds_file) and dtw.isfile(milliseconds_file) then
+         local element_seconds = tonumber(dtw.load_file(seconds_file))
+         local element_milliseconds = tonumber(dtw.load_file(milliseconds_file))
+         
+         -- Check if the file timestamp is within the range
+         local is_after_from = (element_seconds > from_seconds) or 
+                              (element_seconds == from_seconds and element_milliseconds >= from_milliseconds)
+         local is_before_to = (element_seconds < to_seconds) or 
+                             (element_seconds == to_seconds and element_milliseconds <= to_milliseconds)
+         
+         if is_after_from and is_before_to then
+            result.totalRequests = result.totalRequests + 1
+            -- Read the amount from the file and add to total
+            if dtw.isfile(amount_file) then
+               local amount_str = dtw.load_file(amount_file)
+               local amount = tonumber(amount_str) or 0
+               result.totalAmount = result.totalAmount + amount
+            end
+         end
       end
    end 
    return result
@@ -64,27 +74,35 @@ function api_handler(request)
   -- Process the request here
    if request.route == "/payments" then
       
-
-      
      local entries = request.read_json_body(400)
-     --ocal decided_url = DEFAULT_URL
-     --local decided_path = "./data/default"
-    
+     
+     -- Check if correlationId already exists
+     if entries.correlationId then
+        local correlation_path = "./data/" .. entries.correlationId
+        if dtw.isdir(correlation_path) then
+           return "", 422  -- Unprocessable Entity - duplicate correlationId
+        end
+     end
+     
      local absolute_time = dtw.get_absolute_time()
      absolute_time.seconds = absolute_time.seconds +  ((60 * 60) * 3)
      absolute_time.milliseconds = absolute_time.milliseconds or 0
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
+     
      local requisition = luabear.fetch({
         url = DEFAULT_URL.."/payments",
         method = "POST",
         body = entries
      })    
+     
      if requisition.status_code == 200 then
-
-      local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
-      local path ="data/default/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
-         dtw.write_file(path,tostring(entries.amount))
-         return "",200
+        -- Create directory structure for correlationId
+        local correlation_path = "./data/" .. entries.correlationId
+        dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+        dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+        dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
+        dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+        return "",200
      else
          local fallback_requisition = luabear.fetch({
             url = FALLBACK_URL.."/payments",
@@ -92,9 +110,12 @@ function api_handler(request)
             body = entries
          })
          if fallback_requisition.status_code == 200 then
-            local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
-            local path = "./data/fallback/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
-            dtw.write_file(path,tostring(entries.amount))
+            -- Create directory structure for correlationId
+            local correlation_path = "./data/" .. entries.correlationId
+            dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+            dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+            dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
+            dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
             return "",200
          end 
      end
@@ -112,12 +133,52 @@ function api_handler(request)
       if to_str then
          to_time_struct = dtw.get_absolute_time_from_string(to_str)
       end
-      local default_sumary = get_summary("./data/default", from_time_struct, to_time_struct)
-      local fallback_sumary = get_summary("./data/fallback", from_time_struct, to_time_struct)
+      
+      -- Get all correlations and filter by payment_processor
+      local all_correlations = dtw.list_files("./data")
+      local default_total = {totalRequests = 0, totalAmount = 0}
+      local fallback_total = {totalRequests = 0, totalAmount = 0}
+      
+      for i=1,#all_correlations do
+         local correlation_id = all_correlations[i]
+         local correlation_path = "./data/" .. correlation_id
+         local processor_file = correlation_path .. "/payment_processor"
+         
+         if dtw.isfile(processor_file) then
+            local processor = dtw.load_file(processor_file)
+            local seconds = tonumber(dtw.load_file(correlation_path .. "/seconds"))
+            local milliseconds = tonumber(dtw.load_file(correlation_path .. "/milliseconds"))
+            local amount = tonumber(dtw.load_file(correlation_path .. "/amount")) or 0
+            
+            -- Apply time filtering
+            local is_after_from = true
+            local is_before_to = true
+            
+            if from_time_struct then
+               is_after_from = (seconds > from_time_struct.seconds) or 
+                              (seconds == from_time_struct.seconds and milliseconds >= from_time_struct.milliseconds)
+            end
+            
+            if to_time_struct then
+               is_before_to = (seconds < to_time_struct.seconds) or 
+                             (seconds == to_time_struct.seconds and milliseconds <= to_time_struct.milliseconds)
+            end
+            
+            if is_after_from and is_before_to then
+               if processor == "1" then  -- default
+                  default_total.totalRequests = default_total.totalRequests + 1
+                  default_total.totalAmount = default_total.totalAmount + amount
+               elseif processor == "2" then  -- fallback
+                  fallback_total.totalRequests = fallback_total.totalRequests + 1
+                  fallback_total.totalAmount = fallback_total.totalAmount + amount
+               end
+            end
+         end
+      end
 
       local result =  {
-          default = default_sumary,
-         fallback= fallback_sumary
+          default = default_total,
+         fallback= fallback_total
       }
       return result
 
@@ -125,6 +186,7 @@ function api_handler(request)
 
    return "AQUI TEM CORAGEM1"
 end
+
 local start_here = argv.flags_exist({ "start" })
 if start_here then 
    serjao.server(9999, api_handler)
