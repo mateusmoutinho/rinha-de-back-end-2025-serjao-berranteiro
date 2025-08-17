@@ -63,11 +63,7 @@ function api_handler(request)
      local decided = dtw.load_file("url.txt")
      local decided_url = DEFAULT_URL
      local decided_path = "./data/default"
-     if decided == "2" then 
-        decided_url = FALLBACK_URL
-        decided_path = "./data/fallback"
-     end
-     
+    
      local absolute_time = dtw.get_absolute_time()
      absolute_time.seconds = absolute_time.seconds +  (60 * 60 * 3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
@@ -83,7 +79,20 @@ function api_handler(request)
          dtw.write_file(path,tostring(entries.amount))
          
          return "",200
-      end
+     else
+         local fallback_requisition = luabear.fetch({
+            url = FALLBACK_URL.."/payments",
+            method = "POST",
+            body = entries
+         })
+         if fallback_requisition.status_code == 200 then
+            local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
+            local path = "./data/fallback/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
+            dtw.write_file(path,tostring(entries.amount))
+            return "",200
+         end 
+     end
+      
       return "",requisition.status_code
       
    end
