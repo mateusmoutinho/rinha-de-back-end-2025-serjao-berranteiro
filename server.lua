@@ -24,7 +24,7 @@ local function handle_payments(request)
 
    if dtw.isdir(correlation_path) then
       locker.unlock(correlation_path)
-      return "", 422  -- Unprocessable Entity - duplicate correlationId
+      return serjao.send_text(" ", 422)  -- Unprocessable Entity - duplicate correlationId
    end
    
    local absolute_time = dtw.get_absolute_time()
@@ -47,7 +47,7 @@ local function handle_payments(request)
       
       
       locker.unlock(correlation_path)
-      return "", 200  -- IMPORTANTE: Retornar aqui para evitar continuar
+      return serjao.send_text(" ", 200)   -- IMPORTANTE: Retornar aqui para não tentar o fallback
    end
    
    -- Só tenta fallback se o DEFAULT falhou
@@ -66,12 +66,12 @@ local function handle_payments(request)
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
             
       locker.unlock(correlation_path)
-      return " ", 200  -- IMPORTANTE: Retornar aqui também
+      return serjao.send_text(" ", 200)     -- IMPORTANTE: Retornar aqui também
    end
 
    locker.unlock(correlation_path)
 
-   return " ", 500
+   return serjao.send_text(" ", 500)
 end
 
 -- Handle payments summary route
