@@ -109,7 +109,7 @@ local function api_handler(request)
          from = from_str,
          to = to_str,
       }
-      dtw.write_file("debug/"..data..".json", json.dumps_to_string(result))
+      dtw.write_file("debug/"..data..".json", json.dumps_to_string(debug_data))
       return result
 
    end
