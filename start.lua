@@ -6,6 +6,9 @@ local required_files = {
     {
         url="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/payment-processor/docker-compose.yml",
         file="payments.yaml"
+    },
+    {url="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/rinha-test/rinha.js",
+     file="rinha.js"
     }
 }
 for i=1,#required_files do
