@@ -120,7 +120,7 @@ function api_handler(request)
 
    end
 
-   return "AQUI TEM CORAGEM"
+   return "AQUI TEM CORAGEM3"
 end
 local start_here = argv.flags_exist({ "start" })
 if start_here then 
