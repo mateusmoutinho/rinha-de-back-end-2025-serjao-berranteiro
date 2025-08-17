@@ -95,13 +95,11 @@ local function handle_payments_summary(request)
       local is_before_to = true
       
       if from_time_struct then
-         is_after_from = (seconds > from_time_struct.seconds) or 
-                        (seconds == from_time_struct.seconds and milliseconds >= from_time_struct.milliseconds)
+         is_after_from = (seconds > from_time_struct.seconds)
       end
       
       if to_time_struct then
-         is_before_to = (seconds < to_time_struct.seconds) or 
-                        (seconds == to_time_struct.seconds and milliseconds <= to_time_struct.milliseconds)
+         is_before_to = (seconds < to_time_struct.seconds)
       end
       
       if is_after_from and is_before_to then
