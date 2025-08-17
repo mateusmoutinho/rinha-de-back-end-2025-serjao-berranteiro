@@ -74,10 +74,11 @@ local function api_handler(request)
         body = entries
      })    
      if requisition.status_code == 200 then
+         print("requisitioon", requisition.read_body())
          local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
          print("Payment recorded with value: "..entries.amount)
-         return "",200
+         return "",202
       end
       return "",requisition.status_code
       
@@ -96,6 +97,8 @@ local function api_handler(request)
       end
       local default_sumary = get_summary("./data/default", from_time_struct, to_time_struct)
       local fallback_sumary = get_summary("./data/fallback", from_time_struct, to_time_struct)
+      
+      
       return {
           default = default_sumary,
          fallback= fallback_sumary
