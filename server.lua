@@ -5,7 +5,7 @@ set_server.max_request = 10000
 set_server.function_timeout = 100
 
 local function get_summary(database_path,from,to)
-   local files = dtw.list_files_recursively(database_path)
+   local files = dtw.list_files(database_path)
    local result ={
       totalRequests=0,
       totalAmount=0,
@@ -77,7 +77,8 @@ function api_handler(request)
      })    
      if requisition.status_code == 200 then
 
-      local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds.."_"..dtw.get_pid()
+      local str_miliseconds = string.format("%03d", absolute_time.miliseconds)
+      local path = decided_path.."/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
          dtw.write_file(path,tostring(entries.amount))
          return "",200
       end
