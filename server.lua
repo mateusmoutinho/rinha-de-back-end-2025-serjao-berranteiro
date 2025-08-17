@@ -73,7 +73,7 @@ local function handle_payments_summary(request)
    end
    
    -- Get all correlations and filter by payment_processor
-   local all_correlations = dtw.list_files("./data")
+   local all_correlations = dtw.list_dirs("./data")
    local default_total = {totalRequests = 0, totalAmount = 0}
    local fallback_total = {totalRequests = 0, totalAmount = 0}
    
@@ -82,36 +82,35 @@ local function handle_payments_summary(request)
       local correlation_path = "./data/" .. correlation_id
       local processor_file = correlation_path .. "/payment_processor"
       
-      if dtw.isfile(processor_file) then
-         local processor = dtw.load_file(processor_file)
-         local seconds = tonumber(dtw.load_file(correlation_path .. "/seconds"))
-         local milliseconds = tonumber(dtw.load_file(correlation_path .. "/milliseconds"))
-         local amount = tonumber(dtw.load_file(correlation_path .. "/amount")) or 0
-         
-         -- Apply time filtering
-         local is_after_from = true
-         local is_before_to = true
-         
-         if from_time_struct then
-            is_after_from = (seconds > from_time_struct.seconds) or 
-                           (seconds == from_time_struct.seconds and milliseconds >= from_time_struct.milliseconds)
-         end
-         
-         if to_time_struct then
-            is_before_to = (seconds < to_time_struct.seconds) or 
-                          (seconds == to_time_struct.seconds and milliseconds <= to_time_struct.milliseconds)
-         end
-         
-         if is_after_from and is_before_to then
-            if processor == "1" then  -- default
-               default_total.totalRequests = default_total.totalRequests + 1
-               default_total.totalAmount = default_total.totalAmount + amount
-            elseif processor == "2" then  -- fallback
-               fallback_total.totalRequests = fallback_total.totalRequests + 1
-               fallback_total.totalAmount = fallback_total.totalAmount + amount
-            end
+      local processor = dtw.load_file(processor_file)
+      local seconds = tonumber(dtw.load_file(correlation_path .. "/seconds"))
+      local milliseconds = tonumber(dtw.load_file(correlation_path .. "/milliseconds"))
+      local amount = tonumber(dtw.load_file(correlation_path .. "/amount")) or 0
+      
+      -- Apply time filtering
+      local is_after_from = true
+      local is_before_to = true
+      
+      if from_time_struct then
+         is_after_from = (seconds > from_time_struct.seconds) or 
+                        (seconds == from_time_struct.seconds and milliseconds >= from_time_struct.milliseconds)
+      end
+      
+      if to_time_struct then
+         is_before_to = (seconds < to_time_struct.seconds) or 
+                        (seconds == to_time_struct.seconds and milliseconds <= to_time_struct.milliseconds)
+      end
+      
+      if is_after_from and is_before_to then
+         if processor == "1" then  -- default
+            default_total.totalRequests = default_total.totalRequests + 1
+            default_total.totalAmount = default_total.totalAmount + amount
+         elseif processor == "2" then  -- fallback
+            fallback_total.totalRequests = fallback_total.totalRequests + 1
+            fallback_total.totalAmount = fallback_total.totalAmount + amount
          end
       end
+   
    end
 
    local result =  {
