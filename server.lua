@@ -81,6 +81,7 @@ function api_handler(request)
       local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
       local path = decided_path.."/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
          dtw.write_file(path,tostring(entries.amount))
+         
          return "",200
       end
       return "",requisition.status_code
