@@ -3,7 +3,6 @@
 os.execute("vibescript firmware.lua & ")
 dtw.remove_any("data")
 dtw.remove_any("debug")
-clpr.start_action(server)
 local required_files = {
     {
         url ="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/payment-processor/init.sql",
