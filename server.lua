@@ -4,7 +4,7 @@ FALLBACK_URL ="http://localhost:8002"
 
 set_server.max_queue = 1000
 set_server.max_request = 100000
-set_server.function_timeout = 1
+set_server.function_timeout = 2
 set_server.client_timeout = 100
 
 -- Function to validate payment schema
@@ -39,27 +39,8 @@ local function validate_payment_schema(entries)
    
    return true, nil
 end
-local function write_ensuring(path,content)
-   while true do 
 
-      dtw.write_file(path,content)
-      local content_read = dtw.load_file(path)
-      if content_read == content then
-         return true
-      end 
-   end 
 
-end 
-function load_ensuring(path)
-
-   while true do 
-      local content = dtw.load_file(path)
-      if content then
-         return content
-      end 
-   end 
-   
-end
 -- Handle payments route
 local function handle_payments(request)
    local entries = request.read_json_body(4000)
@@ -92,10 +73,10 @@ local function handle_payments(request)
             body = entries
          })    
          if requisition.status_code == 200 then
-            write_ensuring(correlation_path .. "/seconds", tostring(absolute_time.seconds))
-            write_ensuring(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
-            write_ensuring(correlation_path .. "/payment_processor", "1")  -- 1 for default
-            write_ensuring(correlation_path .. "/amount", tostring(entries.amount))
+            dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+            dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+            dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
+            dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
             
             locker.unlock(correlation_path)
             return serjao.send_text(" ", 200)
@@ -107,12 +88,11 @@ local function handle_payments(request)
             method = "POST",
             body = entries
          })
-         print("fall back status code of requisition: " .. fallback_requisition.status_code)
          if fallback_requisition.status_code == 200 then
-            write_ensuring(correlation_path .. "/seconds", tostring(absolute_time.seconds))
-            write_ensuring(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
-            write_ensuring(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
-            write_ensuring(correlation_path .. "/amount", tostring(entries.amount))
+            dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+            dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+            dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
+            dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
                   
             locker.unlock(correlation_path)
             return serjao.send_text(" ", 200)
@@ -142,15 +122,15 @@ local function handle_payments_summary(request)
    local fallback_total = {totalRequests = 0, totalAmount = 0}
    
    for i=1,#all_correlations do
+   
       local correlation_id = all_correlations[i]
       local correlation_path = "./data/" .. correlation_id
       local processor_file = correlation_path .. "/payment_processor"
-      
-      local processor =load_ensuring(processor_file)
-      local seconds = tonumber(load_ensuring(correlation_path .. "/seconds"))
-      local milliseconds = tonumber(load_ensuring(correlation_path .. "/milliseconds"))
-      local amount = tonumber(load_ensuring(correlation_path .. "/amount")) or 0
-      
+   
+      local processor =dtw.load_file(processor_file)
+      local seconds = tonumber(dtw.load_file(correlation_path .. "/seconds"))
+      local milliseconds = tonumber(dtw.load_file(correlation_path .. "/milliseconds"))
+      local amount = tonumber(dtw.load_file(correlation_path .. "/amount")) or 0
       -- Apply time filtering
       local is_after_from = true
       local is_before_to = true
@@ -174,9 +154,9 @@ local function handle_payments_summary(request)
             fallback_total.totalAmount = fallback_total.totalAmount + amount
          end
       end
-   
+         
+ 
    end
-
    local result =  {
        default = default_total,
       fallback= fallback_total
