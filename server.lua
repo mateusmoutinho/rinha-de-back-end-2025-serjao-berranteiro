@@ -3,7 +3,7 @@ FALLBACK_URL ="http://localhost:8002"
 
 
 set_server.max_queue = 1
-set_server.max_request = 50
+set_server.max_request = 1000
 set_server.function_timeout = 100
 set_server.client_timeout = 100
 
@@ -33,32 +33,33 @@ local function handle_payments(request)
       method = "POST",
       body = entries
    })    
-   
    if requisition.status_code == 200 then
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
       locker.unlock(correlation_path)
-      return "",200
-   else
-       local fallback_requisition = luabear.fetch({
-          url = FALLBACK_URL.."/payments",
-          method = "POST",
-          body = entries
-       })
-       if fallback_requisition.status_code == 200 then
-          dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
-          dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
-          dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
-          dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
-         locker.unlock(correlation_path)
-          return "",200
-       end
+      return "", 200  -- IMPORTANTE: Retornar aqui para evitar continuar
+   end
+   
+   -- Só tenta fallback se o DEFAULT falhou
+   local fallback_requisition = luabear.fetch({
+      url = FALLBACK_URL.."/payments",
+      method = "POST",
+      body = entries
+   })
+
+   if fallback_requisition.status_code == 200 then
+      dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+      dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+      dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
+      dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+      locker.unlock(correlation_path)
+      return " ", 200  -- IMPORTANTE: Retornar aqui também
    end
 
    locker.unlock(correlation_path)
-   return "",500
+   return " ", 500
 end
 
 -- Handle payments summary route
