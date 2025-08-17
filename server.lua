@@ -1,7 +1,3 @@
-local serjao = require("serjao_berranteiro/serjao_berranteiro")
-local dtw = require("luaDoTheWorld/luaDoTheWorld")
-local luabear = require("luaBear.luaBear")
-
 DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
 
@@ -16,7 +12,24 @@ set_server.client_timeout = 100
 local function handle_payments(request)
    local entries = request.read_json_body(400)
    
--- Check if correlationId already exists
+   -- Check request limit first
+   local counter_locker = dtw.newLocker()
+   local counter_path = "./data/request_counter"
+   counter_locker.lock(counter_path)
+   
+   -- Read current count
+   local current_count = 0
+   if dtw.isfile(counter_path) then
+      current_count = tonumber(dtw.load_file(counter_path)) or 0
+   end
+   
+   -- Check if we've reached the limit
+   if current_count >= 200 then
+      counter_locker.unlock(counter_path)
+      return "Request limit reached", 503  -- Service Unavailable
+   end
+   
+   -- Check if correlationId already exists
    local locker = dtw.newLocker()
 
    local correlation_path = "./data/" .. entries.correlationId
@@ -24,6 +37,7 @@ local function handle_payments(request)
 
    if dtw.isdir(correlation_path) then
       locker.unlock(correlation_path)
+      counter_locker.unlock(counter_path)
       return "", 422  -- Unprocessable Entity - duplicate correlationId
    end
    
@@ -42,7 +56,12 @@ local function handle_payments(request)
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+      
+      -- Increment counter only on success
+      dtw.write_file(counter_path, tostring(current_count + 1))
+      
       locker.unlock(correlation_path)
+      counter_locker.unlock(counter_path)
       return "", 200  -- IMPORTANTE: Retornar aqui para evitar continuar
    end
    
@@ -58,11 +77,17 @@ local function handle_payments(request)
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+      
+      -- Increment counter only on success
+      dtw.write_file(counter_path, tostring(current_count + 1))
+      
       locker.unlock(correlation_path)
+      counter_locker.unlock(counter_path)
       return " ", 200  -- IMPORTANTE: Retornar aqui também
    end
 
    locker.unlock(correlation_path)
+   counter_locker.unlock(counter_path)
    return " ", 500
 end
 
@@ -134,6 +159,21 @@ function api_handler(request)
       return handle_payments(request)
    elseif request.route == "/payments-summary" then
       return handle_payments_summary(request)
+   elseif request.route == "/reset-counter" then
+      -- Optional: Add a route to reset the counter for testing
+      local counter_locker = dtw.newLocker()
+      local counter_path = "./data/request_counter"
+      counter_locker.lock(counter_path)
+      dtw.write_file(counter_path, "0")
+      counter_locker.unlock(counter_path)
+      return {message = "Counter reset", count = 0}
+   elseif request.route == "/get-counter" then
+      -- Optional: Get current counter value
+      local count = 0
+      if dtw.isfile("./data/request_counter") then
+         count = tonumber(dtw.load_file("./data/request_counter")) or 0
+      end
+      return {current_count = count, limit = 200}
    end
 
    return "AQUI TEM CORAGEM1"
