@@ -14,6 +14,7 @@ local function get_summary(database_path,from,to)
       local file_end = string.sub(file,12,21)
       local file_end_number = tonumber(file_end)
    end 
+   return result
 end
 
 
