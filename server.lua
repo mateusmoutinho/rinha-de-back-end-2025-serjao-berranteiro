@@ -56,17 +56,20 @@ local function handle_payments(request)
       locker.unlock(correlation_path)
       return serjao.send_text(" ", 500 )
    end 
-
+      local chosed_url = nil
       local url_chosed = dtw.load_file("url.txt")
+
+      
       if url_chosed == "0" then
          locker.unlock(correlation_path)
          return serjao.send_text(" ", 422) -- Both processors are down
-      end
-      local chosed_url = DEFAULT_URL
-      if url_chosed == "2" then
+      elseif url_chosed == "1" then
+         chosed_url = DEFAULT_URL
+      elseif url_chosed == "2" then
          chosed_url = FALLBACK_URL
+      else
+         error("Invalid url_chosed value: " .. tostring(url_chosed))
       end
-      
    -- Create directory explicitly before writing to it
       local absolute_time = dtw.get_absolute_time()
       absolute_time.seconds = absolute_time.seconds +  ((60 * 60) * 3)
