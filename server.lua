@@ -74,7 +74,6 @@ local function api_handler(request)
         body = entries
      })    
      if requisition.status_code == 200 then
-         local result =requisition.read_body() -- Read the body to ensure the request is processed
          local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
          print("Payment recorded with value: "..entries.amount)
