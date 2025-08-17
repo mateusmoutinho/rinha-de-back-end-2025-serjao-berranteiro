@@ -68,6 +68,7 @@ local function api_handler(request)
      end
      
      print("recived entries",json.dumps_to_string(entries))
+
      local absolute_time = dtw.get_absolute_time()
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
 
@@ -78,10 +79,9 @@ local function api_handler(request)
         body = entries
      })    
      if requisition.status_code == 200 then
-         print("requisitioon", requisition.read_body())
-         local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
+
+      local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
-         print("Payment recorded with value: "..entries.amount)
          return "",202
       end
       return "",requisition.status_code
