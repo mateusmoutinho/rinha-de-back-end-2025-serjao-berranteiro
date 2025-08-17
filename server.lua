@@ -13,33 +13,33 @@ local function get_summary(database_path,from,to)
 
    -- Set default values for filtering
    local from_seconds = 0
-   local from_nanoseconds = 0
+   local from_milliseconds = 0
    local to_seconds = math.huge
-   local to_nanoseconds = math.huge
+   local to_milliseconds = math.huge
    
    -- If from is provided, use its values
    if from then
       from_seconds = from.seconds 
-      from_nanoseconds = from.nanoseconds
+      from_milliseconds = from.milliseconds
    end
    
    -- If to is provided, use its values
    if to then
       to_seconds = to.seconds
-      to_nanoseconds = to.nanoseconds
+      to_milliseconds = to.milliseconds
    end
    for i=1,#files do
       local element = files[i]
       local element_seconds_str = string.sub(element,1,10)
       local element_seconds = tonumber(element_seconds_str)
-      local element_nano_seconds_str = string.sub(element,12,21)
-      local element_nano_seconds = tonumber(element_nano_seconds_str)
+      local element_milliseconds_str = string.sub(element,12,14)
+      local element_milliseconds = tonumber(element_milliseconds_str)
       
       -- Check if the file timestamp is within the range
       local is_after_from = (element_seconds > from_seconds) or 
-                           (element_seconds == from_seconds and element_nano_seconds >= from_nanoseconds)
+                           (element_seconds == from_seconds and element_milliseconds >= from_milliseconds)
       local is_before_to = (element_seconds < to_seconds) or 
-                          (element_seconds == to_seconds and element_nano_seconds <= to_nanoseconds)
+                          (element_seconds == to_seconds and element_milliseconds <= to_milliseconds)
       
       if is_after_from and is_before_to then
          result.totalRequests = result.totalRequests + 1
@@ -51,6 +51,7 @@ local function get_summary(database_path,from,to)
    end 
    return result
 end
+
 
 
 -- Define your request handler
