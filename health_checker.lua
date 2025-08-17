@@ -10,7 +10,6 @@ local get_status = clpr.add_action({
         local result = luabear.fetch({
             url=args.url.."/payments/service-health"
         })
-        print("consseguiu fazer o fetch",result.read_body())
         return result.read_body_json()
     end
 })
