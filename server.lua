@@ -10,22 +10,22 @@ set_server.client_timeout = 100
 
 -- Handle payments route
 local function handle_payments(request)
-   local entries = request.read_json_body(400)
-   
-
-
-   
+   local entries = request.read_json_body(4000)
    
    -- Check if correlationId already exists
    local locker = dtw.newLocker()
-
    local correlation_path = "./data/" .. entries.correlationId
+   
+   -- Lock before checking to prevent race conditions
    locker.lock(correlation_path)
-
+   
    if dtw.isdir(correlation_path) then
       locker.unlock(correlation_path)
       return serjao.send_text(" ", 422)  -- Unprocessable Entity - duplicate correlationId
    end
+   
+   -- Create directory explicitly before writing to it
+   dtw.create_dir_recursively(correlation_path)
    
    local absolute_time = dtw.get_absolute_time()
    absolute_time.seconds = absolute_time.seconds +  ((60 * 60) * 3)
@@ -37,20 +37,18 @@ local function handle_payments(request)
       method = "POST",
       body = entries
    })    
-   if requisition.status_code == 200 then
-      print("Default processor response code: " .. requisition.read_body())
    
+   if requisition.status_code == 200 then
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
       
-      
       locker.unlock(correlation_path)
-      return serjao.send_text(" ", 200)   -- IMPORTANTE: Retornar aqui para não tentar o fallback
+      return serjao.send_text(" ", 200)
    end
    
-   -- Só tenta fallback se o DEFAULT falhou
+   -- Try fallback only if DEFAULT failed
    local fallback_requisition = luabear.fetch({
       url = FALLBACK_URL.."/payments",
       method = "POST",
@@ -58,17 +56,17 @@ local function handle_payments(request)
    })
 
    if fallback_requisition.status_code == 200 then
-      print("Fallback processor response code: " .. fallback_requisition.read_body())
-
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
             
       locker.unlock(correlation_path)
-      return serjao.send_text(" ", 200)     -- IMPORTANTE: Retornar aqui também
+      return serjao.send_text(" ", 200)
    end
-
+   
+   -- If both processors failed, remove the directory we created
+   dtw.remove_any(correlation_path)
    locker.unlock(correlation_path)
 
    return serjao.send_text(" ", 500)
