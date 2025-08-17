@@ -1,4 +1,19 @@
-local required_files = {
+
+
+-- Define an action
+local server = clpr.add_action({
+    name = "server",
+    callback = function(args)
+        os.execute("vibescript server.lua")
+    end
+})
+
+
+clpr.add_main(function()
+    dtw.remove_any("data")
+    clpr.start_action(server)
+    
+    local required_files = {
     {
         url ="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/payment-processor/init.sql",
         file="init.sql"
@@ -25,14 +40,9 @@ end
 
 os.execute("docker compose -f payments.yaml down -v")
 os.execute("docker compose -f payments.yaml up -d")
--- Define an action
-local server = clpr.add_action({
-    name = "server",
-    callback = function(args)
-        os.execute("vibescript server.lua")
-    end
-})
-clpr.start(server)
-
 
 os.execute("k6 run rinha.js")
+
+end )
+
+
