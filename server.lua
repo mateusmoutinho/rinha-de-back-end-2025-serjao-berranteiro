@@ -4,7 +4,6 @@ set_server.max_queue = 10000
 set_server.max_request = 10000
 set_server.function_timeout = 100
 
-
 local function get_summary(database_path,from,to)
    local files = dtw.list_files(database_path)
    local result ={
