@@ -104,7 +104,7 @@ local function api_handler(request)
          fallback= fallback_sumary
       }
       local data = dtw.convert_absolute_time_to_string(dtw.get_absolute_time())
-      dtw.write_file("debug/"..data..".json", dtw.dumps_to_string(result))
+      dtw.write_file("debug/"..data..".json", json.dumps_to_string(result))
       return result
 
    end
