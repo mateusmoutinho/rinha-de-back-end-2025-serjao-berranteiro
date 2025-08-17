@@ -2,7 +2,7 @@ DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
 
 
-set_server.max_queue = 1
+set_server.max_queue = 1000
 set_server.max_request = 1000
 set_server.function_timeout = 100
 set_server.client_timeout = 100
@@ -24,7 +24,7 @@ local function handle_payments(request)
    end
    
    -- Check if we've reached the limit
-   if current_count >= 200 then
+   if current_count >= 1000 then
       counter_locker.unlock(counter_path)
       return "Request limit reached", 503  -- Service Unavailable
    end
@@ -51,7 +51,9 @@ local function handle_payments(request)
       method = "POST",
       body = entries
    })    
+   print("Default processor response code: " .. requisition.read_body())
    if requisition.status_code == 200 then
+   
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
@@ -71,7 +73,7 @@ local function handle_payments(request)
       method = "POST",
       body = entries
    })
-
+   print("Fallback processor response code: " .. fallback_requisition.read_body())
    if fallback_requisition.status_code == 200 then
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
