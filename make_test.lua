@@ -1,7 +1,7 @@
 local server = clpr.add_action({
     name="server",
     callback=function ()
-        os.execute("vibescript server.lua")
+        relative_load("server.lua")
     end
 })
 clpr.add_main(function ()

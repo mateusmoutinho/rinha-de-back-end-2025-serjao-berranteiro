@@ -6,5 +6,6 @@ test.lua
 url.txt
 .clpr
 data
+partial-results.json
 rinha.js
 requests.js
