@@ -3,6 +3,7 @@ FALLBACK_URL ="http://localhost:8002"
 set_server.max_queue = 10000 
 set_server.max_request = 10000
 set_server.function_timeout = 100
+
 local function get_summary(database_path,from,to)
    local files = dtw.list_files(database_path)
    local result ={
@@ -73,6 +74,7 @@ local function api_handler(request)
         body = entries
      })    
      if requisition.status_code == 200 then
+         local result =requisition.read_body() -- Read the body to ensure the request is processed
          local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
          print("Payment recorded with value: "..entries.amount)
