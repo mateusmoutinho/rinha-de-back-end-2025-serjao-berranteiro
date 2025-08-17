@@ -1,7 +1,7 @@
 FROM alpine:latest
 WORKDIR /app
 RUN apk add --no-cache curl sudo
-RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out && chmod +x vibescript.out
+RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/alpine_with_get_addr_info.out -o vibescript.out && chmod +x vibescript.out
 RUN mkdir -p /app/data && chmod 777 /app/data
 COPY server.lua ./
 CMD ["./vibescript.out", "server.lua", "--start", "3101", "--end", "3200"]
