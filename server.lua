@@ -7,10 +7,48 @@ set_server.max_request = 100000
 set_server.function_timeout = 100
 set_server.client_timeout = 100
 
+-- Function to validate payment schema
+local function validate_payment_schema(entries)
+   -- Check if entries is a table
+   if type(entries) ~= "table" then
+      return false, "Request body must be a valid JSON object"
+   end
+   
+   -- Check required fields
+   if not entries.correlationId then
+      return false, "Missing required field: correlationId"
+   end
+   
+   if type(entries.correlationId) ~= "string" then
+      return false, "correlationId must be a string"
+   end
+   
+   if not entries.amount then
+      return false, "Missing required field: amount"
+   end
+   
+   if type(entries.amount) ~= "number" then
+      return false, "amount must be a number"
+   end
+   
+   -- Add other validations as needed
+   -- For example:
+   -- if not entries.description or type(entries.description) ~= "string" then
+   --    return false, "description must be a valid string"
+   -- end
+   
+   return true, nil
+end
 
 -- Handle payments route
 local function handle_payments(request)
    local entries = request.read_json_body(4000)
+   
+   -- Validate schema
+   local is_valid, error_message = validate_payment_schema(entries)
+   if not is_valid then
+      return serjao.send_text(error_message, 400)  -- Bad Request
+   end
    
    -- Check if correlationId already exists
    local locker = dtw.newLocker()
@@ -66,7 +104,7 @@ local function handle_payments(request)
    end
    
    -- If both processors failed, remove the directory we created
-   dtw.remove_dir(correlation_path)
+   dtw.remove_any(correlation_path)
    locker.unlock(correlation_path)
 
    return serjao.send_text(" ", 500)
