@@ -5,7 +5,7 @@ set_server.max_request = 10000
 set_server.function_timeout = 100
 
 local function get_summary(database_path,from,to)
-   local files = dtw.list_files(database_path)
+   local files = dtw.list_files_recursively(database_path)
    local result ={
       totalRequests=0,
       totalAmount=0,
@@ -28,10 +28,8 @@ local function get_summary(database_path,from,to)
       to_seconds = to.seconds
       to_nanoseconds = to.nanoseconds
    end
-   
    for i=1,#files do
-      local file = files[i]
-      local element = dtw.newPath(file).get_name()
+      local element = files[i]
       local element_seconds_str = string.sub(element,1,10)
       local element_seconds = tonumber(element_seconds_str)
       local element_nano_seconds_str = string.sub(element,12,21)
@@ -79,7 +77,7 @@ function api_handler(request)
      })    
      if requisition.status_code == 200 then
 
-      local path = decided_path.."/"..dtw.get_pid().."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
+      local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds.."_"..dtw.get_pid()
          dtw.write_file(path,tostring(entries.amount))
          return "",200
       end
@@ -112,7 +110,7 @@ function api_handler(request)
 end
 local start_here = argv.flags_exist({ "start" })
 if start_here then 
-   serjao.server(9999, firmware_handler)
+   serjao.server(9999, api_handler)
 end 
 
 return api_handler
