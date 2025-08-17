@@ -7,7 +7,7 @@ set_server.function_timeout = 100
 
 -- Define your request handler
 local function firmware_handler(request)
-    relative_load("server.lua")
+    local api_handler = require("server")
    return api_handler(request)
 end
 

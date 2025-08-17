@@ -125,3 +125,4 @@ if start_here then
    serjao.server(9999, firmware_handler)
 end 
 
+return api_handler
