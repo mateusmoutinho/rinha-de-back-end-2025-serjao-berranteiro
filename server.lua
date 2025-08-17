@@ -80,7 +80,7 @@ function api_handler(request)
 
       local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
          dtw.write_file(path,tostring(entries.amount))
-         return "",202
+         return "",200
       end
       return "",requisition.status_code
       
