@@ -33,3 +33,4 @@ os.execute("vibescript health_checker.lua &")
 
 os.execute("sleep 10") -- Wait for the server to be fully up
 os.execute("k6 run rinha.js")
+os.execute("docker compose -f payments.yaml down -v")
