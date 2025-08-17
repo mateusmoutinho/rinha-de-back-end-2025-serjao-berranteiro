@@ -73,7 +73,7 @@ function api_handler(request)
 
      local absolute_time = dtw.get_absolute_time() + (60 * 60 *3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
-
+     print("request time",entries.requestedAt,"\n\n")
 
      local requisition = luabear.fetch({
         url = decided_url.."/payments",
