@@ -67,23 +67,22 @@ function api_handler(request)
 
       
      local entries = request.read_json_body(400)
-     local decided = dtw.load_file("url.txt")
-     local decided_url = DEFAULT_URL
-     local decided_path = "./data/default"
+     --ocal decided_url = DEFAULT_URL
+     --local decided_path = "./data/default"
     
      local absolute_time = dtw.get_absolute_time()
      absolute_time.seconds = absolute_time.seconds +  ((60 * 60) * 3)
      absolute_time.milliseconds = absolute_time.milliseconds or 0
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
      local requisition = luabear.fetch({
-        url = decided_url.."/payments",
+        url = DEFAULT_URL.."/payments",
         method = "POST",
         body = entries
      })    
      if requisition.status_code == 200 then
 
       local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
-      local path = decided_path.."/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
+      local path ="data/default/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
          dtw.write_file(path,tostring(entries.amount))
          return "",200
      else
