@@ -60,9 +60,8 @@ function api_handler(request)
   -- Process the request here
    if request.route == "/payments" then
       
-     local locker = dtw.newLocker()
-     locker.lock("database")
 
+      
      local entries = request.read_json_body(400)
      local decided = dtw.load_file("url.txt")
      local decided_url = DEFAULT_URL
@@ -79,9 +78,8 @@ function api_handler(request)
      if requisition.status_code == 200 then
 
       local str_miliseconds = string.format("%03d", absolute_time.milliseconds)
-      local path = decided_path.."/"..absolute_time.seconds.."_"..str_miliseconds
+      local path = decided_path.."/"..absolute_time.seconds.."_"..str_miliseconds.."_"..dtw.get_pid()
          dtw.write_file(path,tostring(entries.amount))
-         
          return "",200
      else
          local fallback_requisition = luabear.fetch({
@@ -96,7 +94,7 @@ function api_handler(request)
             return "",200
          end 
      end
-      return "",requisition.status_code
+      return "",500
       
    end
    if request.route == "/payments-summary" then
