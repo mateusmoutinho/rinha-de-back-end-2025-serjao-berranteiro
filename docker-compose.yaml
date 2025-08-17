@@ -26,7 +26,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: vibescript server.lua --start 3000 --end 3100
+    command: ./vibescript.out server.lua --start 3000 --end 3100
     ports:
       - "3000-3100:3000-3100"
     networks:
@@ -46,7 +46,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: vibescript server.lua --start 3101 --end 3200
+    command: ./vibescript.out server.lua --start 3101 --end 3200
     ports:
       - "3101-3200:3101-3200"
     networks:
@@ -66,7 +66,7 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: vibescript health_checker.lua
+    command: ./vibescript.out health_checker.lua
 
 networks:
   backend:

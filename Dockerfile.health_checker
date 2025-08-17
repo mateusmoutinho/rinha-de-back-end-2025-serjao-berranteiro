@@ -1,8 +1,6 @@
 FROM alpine:latest
 WORKDIR /app
 RUN apk add --no-cache curl sudo
-RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out && \
-    sudo cp vibescript.out /usr/bin/vibescript && \
-    rm vibescript.out
+RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out && chmod +x vibescript.out
 COPY health_checker.lua ./
-CMD ["vibescript", "health_checker.lua"]
+CMD ["./vibescript.out", "health_checker.lua"]
