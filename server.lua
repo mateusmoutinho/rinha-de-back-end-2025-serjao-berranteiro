@@ -10,11 +10,10 @@ local function get_summary(database_path,start_time,end_time)
    for i=1,#files do
       local file = files[i]
       local file_start = string.sub(file,1,10)
+      local files_start_number = tonumber(file_start)
       local file_end = string.sub(file,12,21)
-      if file_start  then 
-         
-      end 
-   end
+      local file_end_number = tonumber(file_end)
+   end 
 end
 
 
@@ -62,4 +61,4 @@ local function api_handler(request)
    return "AQUI TEM CORAGEM"
 end
 
-serjao.server(3000, 5000, api_handler)
+serjao.server(9999, api_handler)
