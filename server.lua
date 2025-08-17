@@ -56,41 +56,38 @@ local function handle_payments(request)
       locker.unlock(correlation_path)
       return serjao.send_text(" ", 500 )
    end 
+
+      local url_chosed = dtw.load_file("url.txt")
+      if url_chosed == "0" then
+         locker.unlock(correlation_path)
+         return serjao.send_text(" ", 422) -- Both processors are down
+      end
+      local chosed_url = DEFAULT_URL
+      if url_chosed == "2" then
+         chosed_url = FALLBACK_URL
+      end
+      
    -- Create directory explicitly before writing to it
       local absolute_time = dtw.get_absolute_time()
       absolute_time.seconds = absolute_time.seconds +  ((60 * 60) * 3)
       absolute_time.milliseconds = absolute_time.milliseconds or 0
       entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
-         local requisition = luabear.fetch({
-            url = DEFAULT_URL.."/payments",
-            method = "POST",
-            body = entries
-         })    
-         if requisition.status_code == 200 then
-            dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
-            dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
-            dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
-            dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
-            
-            locker.unlock(correlation_path)
-            return serjao.send_text(" ", 200)
-         end
+      local requisition = luabear.fetch({
+         url = chosed_url.."/payments",
+         method = "POST",
+         body = entries
+      })    
+      if requisition.status_code == 200 then
+         dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
+         dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
+         dtw.write_file(correlation_path .. "/payment_processor",url_chosed)  -- 1 for default
+         dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
          
-         -- Try fallback only if DEFAULT failed
-         local fallback_requisition = luabear.fetch({
-            url = FALLBACK_URL.."/payments",
-            method = "POST",
-            body = entries
-         })
-         if fallback_requisition.status_code == 200 then
-            dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
-            dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
-            dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
-            dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
-                  
-            locker.unlock(correlation_path)
-            return serjao.send_text(" ", 200)
-         end
+         locker.unlock(correlation_path)
+         return serjao.send_text(" ", 200)
+      end
+         
+      
    -- If both processors failed, remove the directory we created
    locker.unlock(correlation_path)
 
