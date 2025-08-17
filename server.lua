@@ -7,6 +7,11 @@ local function get_summary(database_path,from,to)
       totalRequests=0,
       totalAmount=0,
    }
+
+   local from_seconds = from.seconds 
+   local from_nanoseconds = from.nanoseconds
+   local to_seconds = to.seconds
+   local to_nanoseconds = to.nanoseconds
    for i=1,#files do
       local file = files[i]
       local file_start = string.sub(file,1,10)
