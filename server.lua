@@ -15,8 +15,16 @@ local function handle_payments(request)
    
 -- Check if correlationId already exists
    local locker = dtw.newLocker()
-   local correlation_path = "./data/" .. entries.correlationId
-   locker.lock(correlation_path)
+   --locker.lock("total")
+   --local total = 0
+   --if dtw.isfile("total") then
+   --   total = tonumber(dtw.load_file("total")) 
+   --end 
+   --total = total + 1
+   --dtw.write_file("total", tostring(total))
+   --locker.unlock("total")
+   --local correlation_path = "./data/" .. entries.correlationId
+   --locker.lock(correlation_path)
 
    if dtw.isdir(correlation_path) then
       locker.unlock(correlation_path)
