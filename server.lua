@@ -1,5 +1,5 @@
-DEFAULT_URL  ="http://localhost:8001"
-FALLBACK_URL ="http://localhost:8002"
+DEFAULT_URL  ="http://payment-processor-default:8080"
+FALLBACK_URL ="http://payment-processor-fallback:8080"
 
 
 set_server.max_queue = 1000
