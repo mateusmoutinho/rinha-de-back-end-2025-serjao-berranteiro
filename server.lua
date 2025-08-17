@@ -1,5 +1,5 @@
 DEFAULT_URL  ="http://localhost:8001"
-FALLBACK_URL = "http://localhost:8001"
+FALLBACK_URL ="http://localhost:8002"
 
 -- Define your request handler
 local function api_handler(request)
@@ -13,18 +13,21 @@ local function api_handler(request)
         decided_url = FALLBACK_URL
         decided_path = "./data/fallback"
      end
-     
+      local absolute_time = dtw.get_absolute_time()
+     entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
+     print("request at ",entries.requestedAt)
      local requisition = luabear.fetch({
         url = decided_url.."/payments",
         method = "POST",
         body = entries
      })
+     print("status da requisicao",requisition.status_code)
+     
      if requisition.status == 200 then
-        local absolute_time = dtw.get_absolute_time()
         local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
         dtw.write_file(path,tostring(entries.amount))
      end
-
+     return "",200
    end 
 
    return "AQUI TEM CORAGEM"
