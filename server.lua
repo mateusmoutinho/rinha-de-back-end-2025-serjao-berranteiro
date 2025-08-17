@@ -69,7 +69,8 @@ function api_handler(request)
         decided_path = "./data/fallback"
      end
      
-     local absolute_time = dtw.get_absolute_time() + (60 * 60 *3)
+     local absolute_time = dtw.get_absolute_time()
+     absolute_time.seconds = absolute_time.seconds +  (60 * 60 * 3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
      print("request time",entries.requestedAt,"\n\n")
 
