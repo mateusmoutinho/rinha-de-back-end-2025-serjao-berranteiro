@@ -22,5 +22,5 @@ end
 
 os.execute("docker compose -f payments.yaml down -v")
 os.execute("docker compose -f payments.yaml up -d")
-os.execute("vibescript server.lua")
+os.execute("vibescript server.lua &")
 os.execute("k6 run rinha.js")
