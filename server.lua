@@ -150,7 +150,7 @@ clpr.add_main(function ()
       print("Invalid port number. Please provide a port between 1 and 65535.")
       return
    end
-   local end_port = argv.get_flag_arg_by_index({ "end_port" },2)
+   local end_port = argv.get_flag_arg_by_index({ "end" },1)
    local end_num = tonumber(end_port)
    if not end_num or end_num < 1 or end_num > 65535 then
       print("Invalid port number. Please provide a port between 1 and 65535.")
@@ -160,7 +160,9 @@ clpr.add_main(function ()
       print("Invalid port range. Please ensure that start_port is less than end_port.")
       return
    end
+   local all ={}
    for port = start_num, end_num do
-      local action = clpr.start_action(start_server, {port = port})
+      all[#all+1] = clpr.start_action(start_server, {port = port})
    end
+   while true do end 
 end)
