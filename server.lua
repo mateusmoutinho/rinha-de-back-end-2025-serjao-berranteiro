@@ -69,8 +69,6 @@ function api_handler(request)
         decided_path = "./data/fallback"
      end
      
-     print("recived entries",json.dumps_to_string(entries))
-
      local absolute_time = dtw.get_absolute_time() + (60 * 60 *3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
      print("request time",entries.requestedAt,"\n\n")
@@ -90,7 +88,6 @@ function api_handler(request)
       
    end
    if request.route == "/payments-summary" then
-      print("chamou summary")
       local from_str = request.params["from"]
       local from_time_struct = nil 
       if from_str then 
