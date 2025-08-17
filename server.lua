@@ -4,6 +4,7 @@ set_server.max_queue = 10000
 set_server.max_request = 10000
 set_server.function_timeout = 100
 
+
 local function get_summary(database_path,from,to)
    local files = dtw.list_files(database_path)
    local result ={
@@ -55,7 +56,8 @@ end
 
 
 -- Define your request handler
-local function api_handler(request)
+
+function api_handler(request)
   -- Process the request here
    if request.route == "/payments" then 
      local entries = request.read_json_body(400)
@@ -120,5 +122,9 @@ local function api_handler(request)
 
    return "AQUI TEM CORAGEM"
 end
+local start_here = argv.flags_exist({ "start" })
+if start_here then 
+   serjao.server(9999, firmware_handler)
+end 
 
-serjao.server(9999, api_handler)
+return api_handler
