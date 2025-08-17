@@ -1,6 +1,5 @@
 
 
-os.execute("vibescript firmware.lua & ")
 dtw.remove_any("data")
 dtw.remove_any("debug")
 local required_files = {
