@@ -1,6 +1,15 @@
 DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
 
+local function get_summary(database_path,start_time,end_time)
+   local files = dtw.list_files(database_path)
+   for i=1,#files do
+      local file = files[i]
+      
+   end
+end
+
+
 -- Define your request handler
 local function api_handler(request)
   -- Process the request here
@@ -15,19 +24,21 @@ local function api_handler(request)
      end
       local absolute_time = dtw.get_absolute_time()
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
-     print("request at ",entries.requestedAt)
      local requisition = luabear.fetch({
         url = decided_url.."/payments",
         method = "POST",
         body = entries
-     })
-     print("status da requisicao",requisition.status_code)
-     
-     if requisition.status == 200 then
+     })    
+     if requisition.status_code == 200 then
         local path = decided_path.."/"..absolute_time.seconds.."_"..absolute_time.nanoseconds
         dtw.write_file(path,tostring(entries.amount))
-     end
-     return "",200
+         return "",200
+      end
+      return "",requisition.status_code
+  
+   end
+   if request.route == " /payments-summary" then
+    
    end 
 
    return "AQUI TEM CORAGEM"
