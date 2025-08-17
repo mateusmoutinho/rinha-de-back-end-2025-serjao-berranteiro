@@ -35,9 +35,8 @@ os.execute("docker compose -f docker-compose.yaml down -v")
 os.execute("docker compose -f docker-compose.yaml build --no-cache") 
 os.execute("docker compose -f docker-compose.yaml up -d")
 os.execute("sleep 20") -- Wait for the new services to be fully up
-
+while true do end 
 
 os.execute("k6 run rinha.js")
 os.execute("docker compose -f payments.yaml down -v")
 os.execute("docker compose -f docker-compose.yaml down -v")
-while true do end 
