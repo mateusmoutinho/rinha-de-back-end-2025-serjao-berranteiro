@@ -1,8 +1,12 @@
 DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
-set_server.max_queue = 1000
+
+
+set_server.max_queue = 1 
 set_server.max_request = 10000
 set_server.function_timeout = 1
+set_server.client_timeout = 100
+
 
 local function get_summary(database_path,from,to)
    local files = dtw.list_files(database_path)
