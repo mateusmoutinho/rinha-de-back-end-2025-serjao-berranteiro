@@ -72,8 +72,6 @@ function api_handler(request)
      local absolute_time = dtw.get_absolute_time()
      absolute_time.seconds = absolute_time.seconds +  (60 * 60 * 3)
      entries.requestedAt = dtw.convert_absolute_time_to_string(absolute_time)
-     print("request time",entries.requestedAt,"\n\n")
-
      local requisition = luabear.fetch({
         url = decided_url.."/payments",
         method = "POST",
@@ -101,19 +99,11 @@ function api_handler(request)
       end
       local default_sumary = get_summary("./data/default", from_time_struct, to_time_struct)
       local fallback_sumary = get_summary("./data/fallback", from_time_struct, to_time_struct)
-      
 
       local result =  {
           default = default_sumary,
          fallback= fallback_sumary
       }
-      local data = dtw.convert_absolute_time_to_string(dtw.get_absolute_time())
-      local debug_data = {
-         result = result,
-         from = from_str,
-         to = to_str,
-      }
-      dtw.write_file("debug/"..data..".json", json.dumps_to_string(debug_data))
       return result
 
    end
