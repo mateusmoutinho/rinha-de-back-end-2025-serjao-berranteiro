@@ -120,11 +120,10 @@ function api_handler(request)
 
    end
 
-   return "AQUI TEM CORAGEM3"
+   return "AQUI TEM CORAGEM2"
 end
 local start_here = argv.flags_exist({ "start" })
 if start_here then 
    serjao.server(9999, firmware_handler)
 end 
 
-return api_handler

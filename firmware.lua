@@ -7,7 +7,7 @@ set_server.single_process = true
 
 -- Define your request handler
 local function firmware_handler(request)
-   local api_handler = require("server")
+    relative_load("server.lua")
    return api_handler(request)
 end
 
