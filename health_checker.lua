@@ -4,7 +4,10 @@ FALLBACK_URL ="http://localhost:8002"
 -- Define an action
 local get_status = clpr.add_action({
     name = "get_status",
+
     callback = function(args)
+    error("aaa")
+
         local result = luabear.fetch({
             url=args.url.."/payments/service-health"
         })
@@ -21,7 +24,11 @@ clpr.add_main(function ()
             fallback_status.wait(1000, function() os.execute("sleep 0.1") end)
             local response_default = default_status.get_result()
             local response_fallback = fallback_status.get_result()
-
+            if not response_default or not response_fallback then
+                print("Error fetching service health")
+                dtw.write_file("url.txt","0")
+                return
+            end
             if response_default.failing == false then 
                 print("chose the default payment processor")
                 dtw.write_file("url.txt","1")
