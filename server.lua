@@ -3,9 +3,17 @@ FALLBACK_URL ="http://localhost:8002"
 
 local function get_summary(database_path,start_time,end_time)
    local files = dtw.list_files(database_path)
+   local result ={
+      totalRequests=0,
+      totalAmount=0,
+   }
    for i=1,#files do
       local file = files[i]
-      
+      local file_start = string.sub(file,1,10)
+      local file_end = string.sub(file,12,21)
+      if file_start  then 
+         
+      end 
    end
 end
 
@@ -35,11 +43,21 @@ local function api_handler(request)
          return "",200
       end
       return "",requisition.status_code
-  
+      
    end
-   if request.route == " /payments-summary" then
-    
-   end 
+   if request.route == "/payments-summary" then
+      local start_str = request.params["from"]
+      local start_time = nil 
+      if start_str then 
+         start_time = dtw.get_absolute_time_from_string(start_str)
+      end
+      local end_str = request.params["to"]
+      local end_time = nil
+      if end_str then
+         end_time = dtw.get_absolute_time_from_string(end_str)
+      end
+      local default_summary = get_summary("./data/default", start_time, end_time)
+   end
 
    return "AQUI TEM CORAGEM"
 end
