@@ -16,11 +16,11 @@ local function handle_payments(request)
    local locker = dtw.newLocker()
    local correlation_path = "./data/" .. entries.correlationId
    
-   -- Lock the entire database directory to prevent race conditions
-   locker.lock("./data")
+   -- Lock before checking to prevent race conditions
+   locker.lock(correlation_path)
    
    if dtw.isdir(correlation_path) then
-      locker.unlock("./data")
+      locker.unlock(correlation_path)
       return serjao.send_text(" ", 422)  -- Unprocessable Entity - duplicate correlationId
    end
    
@@ -44,7 +44,7 @@ local function handle_payments(request)
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
       
-      locker.unlock("./data")
+      locker.unlock(correlation_path)
       return serjao.send_text(" ", 200)
    end
    
@@ -61,13 +61,13 @@ local function handle_payments(request)
       dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
             
-      locker.unlock("./data")
+      locker.unlock(correlation_path)
       return serjao.send_text(" ", 200)
    end
    
    -- If both processors failed, remove the directory we created
-   dtw.remove_any(correlation_path)
-   locker.unlock("./data")
+   dtw.remove_dir(correlation_path)
+   locker.unlock(correlation_path)
 
    return serjao.send_text(" ", 500)
 end
