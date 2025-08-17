@@ -2,9 +2,9 @@ DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
 
 
-set_server.max_queue = 1 
-set_server.max_request = 10
-set_server.function_timeout = 1
+set_server.max_queue = 10000
+set_server.max_request = 10000
+set_server.function_timeout = 1000
 set_server.client_timeout = 100
 
 
@@ -13,12 +13,14 @@ set_server.client_timeout = 100
 local function handle_payments(request)
    local entries = request.read_json_body(400)
    
-   -- Check if correlationId already exists
-   if entries.correlationId then
-      local correlation_path = "./data/" .. entries.correlationId
-      if dtw.isdir(correlation_path) then
-         return "", 422  -- Unprocessable Entity - duplicate correlationId
-      end
+-- Check if correlationId already exists
+   local locker = dtw.newLocker()
+   local correlation_path = "./data/" .. entries.correlationId
+   locker.lock(correlation_path)
+
+   if dtw.isdir(correlation_path) then
+      locker.unlock(correlation_path)
+      return "", 422  -- Unprocessable Entity - duplicate correlationId
    end
    
    local absolute_time = dtw.get_absolute_time()
@@ -33,12 +35,11 @@ local function handle_payments(request)
    })    
    
    if requisition.status_code == 200 then
-      -- Create directory structure for correlationId
-      local correlation_path = "./data/" .. entries.correlationId
       dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
       dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
       dtw.write_file(correlation_path .. "/payment_processor", "1")  -- 1 for default
       dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+      locker.unlock(correlation_path)
       return "",200
    else
        local fallback_requisition = luabear.fetch({
@@ -47,15 +48,16 @@ local function handle_payments(request)
           body = entries
        })
        if fallback_requisition.status_code == 200 then
-          -- Create directory structure for correlationId
-          local correlation_path = "./data/" .. entries.correlationId
           dtw.write_file(correlation_path .. "/seconds", tostring(absolute_time.seconds))
           dtw.write_file(correlation_path .. "/milliseconds", tostring(absolute_time.milliseconds))
           dtw.write_file(correlation_path .. "/payment_processor", "2")  -- 2 for fallback
           dtw.write_file(correlation_path .. "/amount", tostring(entries.amount))
+         locker.unlock(correlation_path)
           return "",200
-       end 
+       end
    end
+   
+   locker.unlock(correlation_path)
    return "",500
 end
 
