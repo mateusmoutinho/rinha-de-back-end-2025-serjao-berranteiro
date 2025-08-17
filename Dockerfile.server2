@@ -1,8 +1,6 @@
 FROM alpine:latest
 WORKDIR /app
 RUN apk add --no-cache curl sudo
-RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out && \
-    sudo cp vibescript.out /usr/bin/vibescript && \
-    rm vibescript.out
+RUN curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out 
 COPY server.lua ./
-CMD ["vibescript", "server.lua", "--start", "3101", "--end", "3200"]
+CMD ["./vibescript.out", "server.lua", "--start", "3101", "--end", "3200"]
