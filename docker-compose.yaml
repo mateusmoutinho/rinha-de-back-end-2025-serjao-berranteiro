@@ -19,15 +19,17 @@ services:
           cpus: "0.15"
           memory: "15MB"
 
-  api1: &api
-    image: luizcordista/rinha-backend-2025:latest
-    hostname: api1
-    environment:
-      - APP_PORT=8080
-      - PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
-      - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
-      - INSTANCE_ID=API-1
-      - WORKER_CONCURRENCY=16
+  api1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server1
+    container_name: api1
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: vibescript server.lua --start 3000 --end 3100
+    ports:
+      - "3000-3100:3000-3100"
     networks:
       - backend
       - payment-processor
@@ -38,14 +40,24 @@ services:
           memory: "30MB"
 
   api2:
-    <<: *api
-    hostname: api2
-    environment:
-      - APP_PORT=8080
-      - PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
-      - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
-      - INSTANCE_ID=API-2
-      - WORKER_CONCURRENCY=16
+    build:
+      context: .
+      dockerfile: Dockerfile.server2
+    container_name: api2
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: vibescript server.lua --start 3101 --end 3200
+    ports:
+      - "3101-3200:3101-3200"
+    networks:
+      - backend
+      - payment-processor
+    deploy:
+      resources:
+        limits:
+          cpus: "0.55"
+          memory: "30MB"
 
   health_checker:
     build:
@@ -56,30 +68,6 @@ services:
       - .:/app
     working_dir: /app
     command: vibescript health_checker.lua
-
-  server1:
-    build:
-      context: .
-      dockerfile: Dockerfile.server1
-    container_name: server1
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: vibescript server.lua --start 3000 --end 3100
-    ports:
-      - "3000-3100:3000-3100"
-
-  server2:
-    build:
-      context: .
-      dockerfile: Dockerfile.server2
-    container_name: server2
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: vibescript server.lua --start 3101 --end 3200
-    ports:
-      - "3101-3200:3101-3200"
 
 networks:
   backend:
