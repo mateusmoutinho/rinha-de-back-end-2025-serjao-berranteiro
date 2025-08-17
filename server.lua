@@ -98,11 +98,15 @@ local function api_handler(request)
       local default_sumary = get_summary("./data/default", from_time_struct, to_time_struct)
       local fallback_sumary = get_summary("./data/fallback", from_time_struct, to_time_struct)
       
-      
-      return {
+
+      local result =  {
           default = default_sumary,
          fallback= fallback_sumary
       }
+      local data = dtw.convert_absolute_time_to_string(dtw.get_absolute_time())
+      dtw.write_file("debug/"..data..".json", dtw.dumps_to_string(result))
+      return result
+
    end
 
    return "AQUI TEM CORAGEM"
