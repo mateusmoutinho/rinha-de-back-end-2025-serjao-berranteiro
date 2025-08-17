@@ -67,6 +67,8 @@ services:
       - .:/app:rw
     working_dir: /app
     command: ./vibescript.out health_checker.lua
+    networks:
+      - payment-processor
 
 networks:
   backend:
