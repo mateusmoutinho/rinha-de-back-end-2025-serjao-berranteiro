@@ -36,5 +36,5 @@ clpr.add_main(function ()
 
     os.execute("docker compose -f payments.yaml down -v")
     os.execute("docker compose -f payments.yaml up -d")
-    
+    os.execute("k6 run rinha.js")
 end)
