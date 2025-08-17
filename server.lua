@@ -3,7 +3,7 @@ FALLBACK_URL ="http://localhost:8002"
 
 
 set_server.max_queue = 1
-set_server.max_request = 10000
+set_server.max_request = 10
 set_server.function_timeout = 2
 set_server.client_timeout = 100
 
@@ -15,16 +15,9 @@ local function handle_payments(request)
    
 -- Check if correlationId already exists
    local locker = dtw.newLocker()
-   --locker.lock("total")
-   --local total = 0
-   --if dtw.isfile("total") then
-   --   total = tonumber(dtw.load_file("total")) 
-   --end 
-   --total = total + 1
-   --dtw.write_file("total", tostring(total))
-   --locker.unlock("total")
-   --local correlation_path = "./data/" .. entries.correlationId
-   --locker.lock(correlation_path)
+
+   local correlation_path = "./data/" .. entries.correlationId
+   locker.lock(correlation_path)
 
    if dtw.isdir(correlation_path) then
       locker.unlock(correlation_path)
