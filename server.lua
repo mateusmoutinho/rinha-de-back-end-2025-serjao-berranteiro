@@ -45,12 +45,6 @@ end
 local function handle_payments(request)
    local entries = request.read_json_body(4000)
    
-   -- Validate schema
-   local is_valid, error_message = validate_payment_schema(entries)
-   if not is_valid then
-      return serjao.send_text(error_message, 400)  -- Bad Request
-   end
-   
    -- Check if correlationId already exists
    local locker = dtw.newLocker()
    local correlation_path = "./data/" .. entries.correlationId
