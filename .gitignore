@@ -4,6 +4,7 @@ start_payments.sh
 destroy_payments.sh
 test.lua
 luaDoTheWorld
+luaBear
 serjao_berranteiro
 url.txt
 .clpr

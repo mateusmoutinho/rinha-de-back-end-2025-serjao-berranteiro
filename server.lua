@@ -1,5 +1,6 @@
 local serjao = require("serjao_berranteiro/serjao_berranteiro")
 local dtw = require("luaDoTheWorld/luaDoTheWorld")
+local luabear = require("luaBear.luaBear")
 
 DEFAULT_URL  ="http://localhost:8001"
 FALLBACK_URL ="http://localhost:8002"
