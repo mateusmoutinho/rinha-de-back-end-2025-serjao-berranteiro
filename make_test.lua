@@ -36,6 +36,6 @@ clpr.add_main(function ()
 
     os.execute("docker compose -f payments.yaml down -v")
     os.execute("docker compose -f payments.yaml up -d")
-    os.execute("sleep 5") -- Wait for the server to be fully up
-    os.execute("k6 run -e MAX_REQUESTS=1 rinha.js")
+    os.execute("sleep 10") -- Wait for the server to be fully up
+    os.execute("k6 run -e MAX_REQUESTS=50 rinha.js")
 end)
