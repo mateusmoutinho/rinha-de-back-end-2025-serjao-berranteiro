@@ -11,3 +11,4 @@ em paralelo, duas instancias de servidores  com
 ```bash
 curl -L https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/vibescript.out -o vibescript.out && sudo cp vibescript.out /usr/bin/vibescript
 ```
+baseado nisso edite o docker-compose.yaml e crie as docker files nescesárias para o projeto.

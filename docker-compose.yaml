@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   nginx:
     image: nginx:1.25-alpine
@@ -45,6 +46,40 @@ services:
       - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
       - INSTANCE_ID=API-2
       - WORKER_CONCURRENCY=16
+
+  health_checker:
+    build:
+      context: .
+      dockerfile: Dockerfile.health_checker
+    container_name: health_checker
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: vibescript health_checker.lua
+
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile.server1
+    container_name: server1
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: vibescript server.lua --start 3000 --end 3100
+    ports:
+      - "3000-3100:3000-3100"
+
+  server2:
+    build:
+      context: .
+      dockerfile: Dockerfile.server2
+    container_name: server2
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: vibescript server.lua --start 3101 --end 3200
+    ports:
+      - "3101-3200:3101-3200"
 
 networks:
   backend:
