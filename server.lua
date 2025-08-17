@@ -84,6 +84,7 @@ local function api_handler(request)
       
    end
    if request.route == "/payments-summary" then
+      print("chamou summary")
       local from_str = request.params["from"]
       local from_time_struct = nil 
       if from_str then 
