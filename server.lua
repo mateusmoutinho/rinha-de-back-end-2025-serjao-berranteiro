@@ -45,17 +45,17 @@ local function api_handler(request)
       
    end
    if request.route == "/payments-summary" then
-      local start_str = request.params["from"]
-      local start_time = nil 
-      if start_str then 
-         start_time = dtw.get_absolute_time_from_string(start_str)
+      local from_str = request.params["from"]
+      local from_time_struct = nil 
+      if from_str then 
+         from_time_struct = dtw.get_absolute_time_from_string(from_str)
       end
-      local end_str = request.params["to"]
-      local end_time = nil
-      if end_str then
-         end_time = dtw.get_absolute_time_from_string(end_str)
+      local to_str = request.params["to"]
+      local to_time_struct = nil
+      if to_str then
+         to_time_struct = dtw.get_absolute_time_from_string(to_str)
       end
-      local default_summary = get_summary("./data/default", start_time, end_time)
+      local default_summary = get_summary("./data/default", from_time_struct, to_time_struct)
    end
 
    return "AQUI TEM CORAGEM"
