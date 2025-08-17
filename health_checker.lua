@@ -23,11 +23,13 @@ clpr.add_main(function ()
             local response_fallback = fallback_status.get_result()
 
             if response_default.failing == false then 
-            dtw.write_file("url.txt","1")
-        
-            else if response_fallback.failing == false then 
-            dtw.write_file("url.txt","2")
+                print("chose the default payment processor")
+                dtw.write_file("url.txt","1")
+            else if response_fallback.failing == false then
+                print("chose the fallback payment processor") 
+                dtw.write_file("url.txt","2")
             else
+                print("both payment processors are down, not using")
                 dtw.write_file("url.txt","0")
             end
 
