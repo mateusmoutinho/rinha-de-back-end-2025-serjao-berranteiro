@@ -158,6 +158,7 @@ clpr.add_main(function ()
    end
    
    local all ={}
+   
    for port = start_num, end_num do
       all[#all+1] = clpr.start_action(start_server, {port = port})
    end
