@@ -1,0 +1,10 @@
+{
+    "name": "Mateus Moutinho Queiroz",
+    "social": ["https://www.linkedin.com/in/mateus-moutinho-queiroz-87108012a/", "https://github.com/mateusmoutinho"],
+    "source-code-repo": "https://github.com/mateusmoutinho/rinha-de-back-end-2025-serjao-berranteiro",
+    "langs": ["lua", "vibescript"],
+    "storages": ["LuaDoTheWorld"],
+    "messaging": [],
+    "load-balancers": ["nginx"],
+    "other-technologies": ["vibescript", "SerjaoBerranteiroServer", "LuaDoTheWorld"] // inclua qq coisa que não se encaixe nas outra categorias
+}
