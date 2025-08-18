@@ -26,8 +26,8 @@ clpr.add_main(function ()
             print(response_fallback)
             if not response_default or not response_fallback then
                 print("Error fetching service health")
-                dtw.write_file("url.txt","0")
-                return
+                dtw.write_file("url.txt","1")
+                goto continue
             end
             if response_default.failing == false then 
                 print("chose the default payment processor")
@@ -37,9 +37,11 @@ clpr.add_main(function ()
                 dtw.write_file("url.txt","2")
             else
                 print("both payment processors are down, not using")
-                dtw.write_file("url.txt","0")
+                dtw.write_file("url.txt","1")
             end
+            
 
         end 
+        ::continue::
     end 
 end)
