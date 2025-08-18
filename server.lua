@@ -156,10 +156,7 @@ clpr.add_main(function ()
       print("Invalid port number. Please provide a port between 1 and 65535.")
       return
    end
-   if start_num >= end_num then
-      print("Invalid port range. Please ensure that start_port is less than end_port.")
-      return
-   end
+   
    local all ={}
    for port = start_num, end_num do
       all[#all+1] = clpr.start_action(start_server, {port = port})

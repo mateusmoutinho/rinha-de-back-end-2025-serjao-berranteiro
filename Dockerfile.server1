@@ -4,4 +4,4 @@ RUN mkdir -p /app/data && chmod 777 /app/data
 COPY server.lua ./
 COPY vibescript.out ./
 RUN chmod +x /app/vibescript.out && ls -la /app/vibescript.out
-CMD ["./vibescript.out", "server.lua", "--start", "3000", "--end", "3100"]
+CMD ["./vibescript.out", "server.lua", "--start", "3001", "--end", "3001"]
