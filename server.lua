@@ -4,9 +4,8 @@ FALLBACK_URL ="http://payment-processor-fallback:8080"
 
 set_server.max_queue = 1000
 set_server.max_request = 10000
-set_server.function_timeout = 3
+set_server.function_timeout = 1000
 set_server.client_timeout = 100
-set_server.signle_process = true
 -- Handle payments route
 local function handle_payments(request)
    local entries = request.read_json_body(4000)
