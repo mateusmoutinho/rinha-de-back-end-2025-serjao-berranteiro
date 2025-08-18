@@ -15,6 +15,9 @@ local required_files = {
     {url="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/rinha-test/requests.js",
     file="requests.js"
     },
+    {url = "https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/alpine_with_get_addr_info.out",
+    file="vibescript.out"   
+}
 }   
 for i=1,#required_files do
     local current = required_files[i]
