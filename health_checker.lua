@@ -1,28 +1,29 @@
-DEFAULT_URL  ="http://localhost:8001"
-FALLBACK_URL ="http://localhost:8002"
+DEFAULT_URL  ="http://payment-processor-default:8080"
+FALLBACK_URL ="http://payment-processor-fallback:8080"
 -- Define an action
 -- Define an action
 local get_status = clpr.add_action({
     name = "get_status",
-
     callback = function(args)
-
         local result = luabear.fetch({
             url=args.url.."/payments/service-health"
         })
-        return result.read_body_json()
+        local result =  result.read_body_json()
+        return result
     end
 })
 
 clpr.add_main(function ()
         while true do
-
             local default_status = clpr.start_action(get_status, {url=DEFAULT_URL})
             local fallback_status = clpr.start_action(get_status, {url=FALLBACK_URL})
-            default_status.wait(10000, function() os.execute("sleep 0.1") end)
-            fallback_status.wait(1000, function() os.execute("sleep 0.1") end)
+            os.execute("sleep 5") -- Wait for the services to respond
+
+           
             local response_default = default_status.get_result()
             local response_fallback = fallback_status.get_result()
+            print(response_default)
+            print(response_fallback)
             if not response_default or not response_fallback then
                 print("Error fetching service health")
                 dtw.write_file("url.txt","0")

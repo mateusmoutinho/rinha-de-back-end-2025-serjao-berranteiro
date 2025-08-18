@@ -1,5 +1,3 @@
-
-
 dtw.remove_any("data")
 dtw.remove_any("debug")
 local required_files = {
@@ -17,6 +15,9 @@ local required_files = {
     {url="https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/refs/heads/main/rinha-test/requests.js",
     file="requests.js"
     },
+    {url = "https://github.com/OUIsolutions/VibeScript/releases/download/0.32.0/alpine_with_get_addr_info.out",
+    file="vibescript.out"   
+}
 }   
 for i=1,#required_files do
     local current = required_files[i]
@@ -29,8 +30,16 @@ end
 
 os.execute("docker compose -f payments.yaml down -v")
 os.execute("docker compose -f payments.yaml up -d")
-os.execute("vibescript health_checker.lua &")
+os.execute("sleep 20") -- Wait for the server to be fully up
 
-os.execute("sleep 10") -- Wait for the server to be fully up
+
+-- Start new docker-compose scenario first
+os.execute("docker compose -f docker-compose.yaml down -v")
+os.execute("docker compose -f docker-compose.yaml build ") 
+os.execute("docker compose -f docker-compose.yaml up -d")
+os.execute("sleep 20") -- Wait for the new services to be fully up
+while true do end 
+
 os.execute("k6 run rinha.js")
 os.execute("docker compose -f payments.yaml down -v")
+os.execute("docker compose -f docker-compose.yaml down -v")

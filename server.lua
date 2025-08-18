@@ -1,5 +1,5 @@
-DEFAULT_URL  ="http://localhost:8001"
-FALLBACK_URL ="http://localhost:8002"
+DEFAULT_URL  ="http://payment-processor-default:8080"
+FALLBACK_URL ="http://payment-processor-fallback:8080"
 
 
 set_server.max_queue = 1000
@@ -136,4 +136,33 @@ function api_handler(request)
    return "AQUI TEM CORAGEM1"
 end
 
-serjao.server(9999, api_handler)
+local start_server = clpr.add_action({
+    name = "start_server",
+    callback = function(args)
+        serjao.server(args.port, api_handler)
+    end
+})
+
+clpr.add_main(function ()
+   local start =  argv.get_flag_arg_by_index({ "start" },1)
+   local start_num = tonumber(start)
+   if not start_num or start_num < 1 or start_num > 65535 then
+      print("Invalid port number. Please provide a port between 1 and 65535.")
+      return
+   end
+   local end_port = argv.get_flag_arg_by_index({ "end" },1)
+   local end_num = tonumber(end_port)
+   if not end_num or end_num < 1 or end_num > 65535 then
+      print("Invalid port number. Please provide a port between 1 and 65535.")
+      return
+   end
+   if start_num >= end_num then
+      print("Invalid port range. Please ensure that start_port is less than end_port.")
+      return
+   end
+   local all ={}
+   for port = start_num, end_num do
+      all[#all+1] = clpr.start_action(start_server, {port = port})
+   end
+   while true do end 
+end)
